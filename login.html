@@ -1,24 +1,59 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8">
-<title>Login Prof</title><link rel="stylesheet" href="style.css"></head>
-<body><div class="container"><div class="card">
-<h2>🔒 Accesso Prof</h2>
-<input id="pin" type="password" placeholder="Inserisci PIN">
-<button onclick="login()">Entra</button>
-<p id="msg" class="small"></p>
-</div></div>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Accesso Docenti</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="page">
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
 
-<script type="module">
-import { auth } from "./firebase.js";
-import { signInWithEmailAndPassword }
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    <header class="topbar minimal">
+      <div class="brand">
+        <span class="brand-mark">∑</span>
+        <div>
+          <p class="brand-title">Mate Web</p>
+          <p class="brand-subtitle">Area riservata docenti</p>
+        </div>
+      </div>
+      <a class="ghost-button" href="index.html">Torna al programma</a>
+    </header>
 
-const EMAIL_FISSA="prof@scuola.it";
+    <main class="container">
+      <section class="auth-card">
+        <div class="auth-header">
+          <p class="eyebrow">Accesso sicuro</p>
+          <h1>Benvenuto, prof!</h1>
+          <p class="lead">
+            Inserisci il PIN per gestire le lezioni, modificare gli argomenti e
+            mantenere il programma sempre aggiornato.
+          </p>
+        </div>
+        <div class="form-card">
+          <label for="pin">PIN personale</label>
+          <input id="pin" type="password" placeholder="••••••" />
+          <button class="primary-button" onclick="login()">Entra</button>
+          <p id="msg" class="small"></p>
+        </div>
+      </section>
+    </main>
 
-window.login=function(){
- const pin=document.getElementById("pin").value;
- signInWithEmailAndPassword(auth,EMAIL_FISSA,pin)
- .then(()=>location.href="admin.html")
- .catch(()=>document.getElementById("msg").innerText="❌ PIN errato");
-}
-</script></body></html>
+    <script type="module">
+      import { auth } from "./firebase.js";
+      import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+      const EMAIL_FISSA = "prof@scuola.it";
+
+      window.login = function () {
+        const pin = document.getElementById("pin").value;
+        signInWithEmailAndPassword(auth, EMAIL_FISSA, pin)
+          .then(() => (location.href = "admin.html"))
+          .catch(() =>
+            (document.getElementById("msg").innerText = "❌ PIN errato")
+          );
+      };
+    </script>
+  </body>
+</html>
