@@ -1,27 +1,111 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8">
-<title>Programma</title><link rel="stylesheet" href="style.css"></head>
-<body><div class="container">
-<div class="card"><h1>📘 Programma Matematica</h1>
-<p class="small">Aggiornato automaticamente</p></div>
-<div id="lista"></div></div>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Programma Matematica</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="page">
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
 
-<script type="module">
-import { db } from "./firebase.js";
-import { collection,getDocs,query,orderBy }
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">∑</span>
+        <div>
+          <p class="brand-title">Mate Web</p>
+          <p class="brand-subtitle">Programma aggiornato in tempo reale</p>
+        </div>
+      </div>
+      <a class="ghost-button" href="login.html">Accesso docenti</a>
+    </header>
 
-async function carica(){
- const lista=document.getElementById("lista");
- lista.innerHTML="";
- const q=query(collection(db,"lezioni"),orderBy("data","desc"));
- const snap=await getDocs(q);
- snap.forEach(doc=>{
-  const l=doc.data();
-  lista.innerHTML+=`<div class="lesson">
-   <div><b>📅 ${l.data}</b><br>✏️ ${l.argomento}</div>
-  </div>`;
- });
-}
-carica();
-</script></body></html>
+    <main class="container">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Anno scolastico 2024 · 2025</p>
+          <h1>Il percorso di matematica, sempre chiaro e condiviso.</h1>
+          <p class="lead">
+            Consulta le lezioni più recenti, gli argomenti svolti e le date
+            chiave. Tutto ciò che serve per restare al passo, in un solo posto.
+          </p>
+          <div class="hero-actions">
+            <button class="primary-button" type="button" onclick="carica()">
+              Aggiorna elenco
+            </button>
+            <a class="secondary-button" href="admin.html">Dashboard prof</a>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-stat">
+            <p class="stat-label">Lezioni caricate</p>
+            <p class="stat-value" id="lesson-count">--</p>
+          </div>
+          <div class="hero-stat">
+            <p class="stat-label">Ultimo aggiornamento</p>
+            <p class="stat-value" id="last-update">--</p>
+          </div>
+          <div class="hero-pill">Sincronizzato con Firebase</div>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <div class="section-header">
+          <div>
+            <h2>Lezioni recenti</h2>
+            <p class="section-subtitle">Ordinate dalla più nuova alla più vecchia.</p>
+          </div>
+        </div>
+        <div id="lista" class="lesson-grid"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Creato per una gestione semplice, elegante e trasparente.</p>
+    </footer>
+
+    <script type="module">
+      import { db } from "./firebase.js";
+      import {
+        collection,
+        getDocs,
+        query,
+        orderBy,
+      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+      async function carica() {
+        const lista = document.getElementById("lista");
+        const count = document.getElementById("lesson-count");
+        const lastUpdate = document.getElementById("last-update");
+        lista.innerHTML = "";
+        const q = query(collection(db, "lezioni"), orderBy("data", "desc"));
+        const snap = await getDocs(q);
+        let total = 0;
+        let lastDate = "";
+
+        snap.forEach((doc) => {
+          total += 1;
+          const l = doc.data();
+          if (!lastDate) {
+            lastDate = l.data;
+          }
+          lista.innerHTML += `
+            <article class="lesson">
+              <div>
+                <p class="lesson-date">${l.data}</p>
+                <p class="lesson-topic">${l.argomento}</p>
+              </div>
+              <span class="lesson-badge">Programma</span>
+            </article>`;
+        });
+
+        count.textContent = total || "0";
+        lastUpdate.textContent = lastDate || "In attesa";
+      }
+
+      window.carica = carica;
+      carica();
+    </script>
+  </body>
+</html>
