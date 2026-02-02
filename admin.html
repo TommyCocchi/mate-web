@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<title>Dashboard Prof</title><link rel="stylesheet" href="style.css"></head>
+<body><div class="container">
+<div class="card">
+<h2>📌 Dashboard Prof</h2>
+<input id="data" type="date">
+<input id="argomento" type="text" placeholder="Argomento svolto">
+<button onclick="aggiungi()">Aggiungi lezione</button>
+<button onclick="logout()">Logout</button>
+<p id="ok" class="small"></p>
+</div>
+
+<div class="card"><h3>📚 Lezioni inserite</h3>
+<div id="lista"></div></div>
+</div>
+
+<div class="modal" id="modal">
+ <div class="modal-content">
+  <h3>✏️ Modifica lezione</h3>
+  <input id="mdata" type="date">
+  <input id="margomento" type="text">
+  <button onclick="salvaModifica()">Salva</button>
+  <button onclick="chiudi()">Annulla</button>
+ </div>
+</div>
+
+<script type="module">
+import { db,auth } from "./firebase.js";
+import { collection,addDoc,getDocs,doc,deleteDoc,updateDoc,query,orderBy }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { signOut }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+let currentId=null;
+
+window.logout=()=>signOut(auth).then(()=>location.href="login.html");
+
+window.aggiungi=async function(){
+ const data=document.getElementById("data").value;
+ const argomento=document.getElementById("argomento").value;
+ await addDoc(collection(db,"lezioni"),{data,argomento});
+ document.getElementById("ok").innerText="✅ Inserito!";
+ carica();
+}
+
+async function carica(){
+ const lista=document.getElementById("lista");
+ lista.innerHTML="";
+ const q=query(collection(db,"lezioni"),orderBy("data","desc"));
+ const snap=await getDocs(q);
+
+ snap.forEach(d=>{
+  const l=d.data();
+  lista.innerHTML+=`
+   <div class="lesson">
+    <div><b>${l.data}</b><br>${l.argomento}</div>
+    <div>
+     <button onclick="apri('${d.id}','${l.data}','${l.argomento}')">✏️</button>
+     <button onclick="cancella('${d.id}')">🗑</button>
+    </div>
+   </div>`;
+ });
+}
+carica();
+
+window.cancella=async(id)=>{
+ await deleteDoc(doc(db,"lezioni",id));
+ carica();
+}
+
+window.apri=(id,data,arg)=>{
+ currentId=id;
+ document.getElementById("mdata").value=data;
+ document.getElementById("margomento").value=arg;
+ document.getElementById("modal").style.display="flex";
+}
+
+window.chiudi=()=>document.getElementById("modal").style.display="none";
+
+window.salvaModifica=async()=>{
+ const data=document.getElementById("mdata").value;
+ const argomento=document.getElementById("margomento").value;
+ await updateDoc(doc(db,"lezioni",currentId),{data,argomento});
+ chiudi(); carica();
+}
+</script></body></html>

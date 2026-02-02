@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<title>Login Prof</title><link rel="stylesheet" href="style.css"></head>
+<body><div class="container"><div class="card">
+<h2>🔒 Accesso Prof</h2>
+<input id="pin" type="password" placeholder="Inserisci PIN">
+<button onclick="login()">Entra</button>
+<p id="msg" class="small"></p>
+</div></div>
+
+<script type="module">
+import { auth } from "./firebase.js";
+import { signInWithEmailAndPassword }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+const EMAIL_FISSA="prof@scuola.it";
+
+window.login=function(){
+ const pin=document.getElementById("pin").value;
+ signInWithEmailAndPassword(auth,EMAIL_FISSA,pin)
+ .then(()=>location.href="admin.html")
+ .catch(()=>document.getElementById("msg").innerText="❌ PIN errato");
+}
+</script></body></html>
