@@ -94,6 +94,9 @@
           lastUpdate.textContent = "In attesa";
           return;
         }
+        lista.innerHTML = "";
+        const q = query(collection(db, "lezioni"), orderBy("data", "desc"));
+        const snap = await getDocs(q);
         let total = 0;
         let lastDate = "";
 

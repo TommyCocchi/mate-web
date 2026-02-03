@@ -110,6 +110,9 @@
             "❌ Errore nel salvataggio. Controlla permessi Firestore.";
           console.error("Errore inserimento lezione:", error);
         }
+        await addDoc(collection(db, "lezioni"), { data, argomento });
+        document.getElementById("ok").innerText = "✅ Inserito!";
+        carica();
       };
 
       async function carica() {
@@ -125,6 +128,8 @@
           console.error("Errore lettura lezioni:", error);
           return;
         }
+        const q = query(collection(db, "lezioni"), orderBy("data", "desc"));
+        const snap = await getDocs(q);
 
         snap.forEach((d) => {
           const l = d.data();
@@ -154,6 +159,8 @@
             "❌ Errore nella cancellazione. Controlla permessi Firestore.";
           console.error("Errore cancellazione lezione:", error);
         }
+        await deleteDoc(doc(db, "lezioni", id));
+        carica();
       };
 
       window.apri = (id, data, arg) => {
@@ -177,6 +184,9 @@
             "❌ Errore nel salvataggio. Controlla permessi Firestore.";
           console.error("Errore modifica lezione:", error);
         }
+        await updateDoc(doc(db, "lezioni", currentId), { data, argomento });
+        chiudi();
+        carica();
       };
     </script>
   </body>
