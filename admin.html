@@ -1,87 +1,183 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8">
-<title>Dashboard Prof</title><link rel="stylesheet" href="style.css"></head>
-<body><div class="container">
-<div class="card">
-<h2>📌 Dashboard Prof</h2>
-<input id="data" type="date">
-<input id="argomento" type="text" placeholder="Argomento svolto">
-<button onclick="aggiungi()">Aggiungi lezione</button>
-<button onclick="logout()">Logout</button>
-<p id="ok" class="small"></p>
-</div>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard Docente</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="page">
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
 
-<div class="card"><h3>📚 Lezioni inserite</h3>
-<div id="lista"></div></div>
-</div>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">∑</span>
+        <div>
+          <p class="brand-title">Mate Web</p>
+          <p class="brand-subtitle">Dashboard docente</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <a class="ghost-button" href="index.html">Anteprima studenti</a>
+        <button class="ghost-button" onclick="logout()">Logout</button>
+      </div>
+    </header>
 
-<div class="modal" id="modal">
- <div class="modal-content">
-  <h3>✏️ Modifica lezione</h3>
-  <input id="mdata" type="date">
-  <input id="margomento" type="text">
-  <button onclick="salvaModifica()">Salva</button>
-  <button onclick="chiudi()">Annulla</button>
- </div>
-</div>
+    <main class="container">
+      <section class="content-grid">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <p class="eyebrow">Nuova lezione</p>
+              <h2>Registra l'attività di oggi</h2>
+              <p class="section-subtitle">
+                Compila data e argomento per aggiornare il programma in tempo
+                reale.
+              </p>
+            </div>
+          </div>
+          <div class="form-grid">
+            <label for="data">Data</label>
+            <input id="data" type="date" />
+            <label for="argomento">Argomento svolto</label>
+            <input id="argomento" type="text" placeholder="Es. Funzioni quadratiche" />
+            <button class="primary-button" onclick="aggiungi()">Aggiungi lezione</button>
+            <p id="ok" class="small"></p>
+          </div>
+        </div>
 
-<script type="module">
-import { db,auth } from "./firebase.js";
-import { collection,addDoc,getDocs,doc,deleteDoc,updateDoc,query,orderBy }
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { signOut }
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        <div class="card">
+          <div class="section-header">
+            <div>
+              <h2>Lezioni inserite</h2>
+              <p class="section-subtitle">
+                Modifica rapidamente gli argomenti o elimina le lezioni errate.
+              </p>
+            </div>
+          </div>
+          <div id="lista" class="lesson-grid"></div>
+        </div>
+      </section>
+    </main>
 
-let currentId=null;
-
-window.logout=()=>signOut(auth).then(()=>location.href="login.html");
-
-window.aggiungi=async function(){
- const data=document.getElementById("data").value;
- const argomento=document.getElementById("argomento").value;
- await addDoc(collection(db,"lezioni"),{data,argomento});
- document.getElementById("ok").innerText="✅ Inserito!";
- carica();
-}
-
-async function carica(){
- const lista=document.getElementById("lista");
- lista.innerHTML="";
- const q=query(collection(db,"lezioni"),orderBy("data","desc"));
- const snap=await getDocs(q);
-
- snap.forEach(d=>{
-  const l=d.data();
-  lista.innerHTML+=`
-   <div class="lesson">
-    <div><b>${l.data}</b><br>${l.argomento}</div>
-    <div>
-     <button onclick="apri('${d.id}','${l.data}','${l.argomento}')">✏️</button>
-     <button onclick="cancella('${d.id}')">🗑</button>
+    <div class="modal" id="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Modifica lezione</h3>
+          <p class="small">Aggiorna la data o l'argomento in modo preciso.</p>
+        </div>
+        <label for="mdata">Data</label>
+        <input id="mdata" type="date" />
+        <label for="margomento">Argomento</label>
+        <input id="margomento" type="text" />
+        <div class="modal-actions">
+          <button class="primary-button" onclick="salvaModifica()">Salva</button>
+          <button class="secondary-button" onclick="chiudi()">Annulla</button>
+        </div>
+      </div>
     </div>
-   </div>`;
- });
-}
-carica();
 
-window.cancella=async(id)=>{
- await deleteDoc(doc(db,"lezioni",id));
- carica();
-}
+    <script type="module">
+      import { db, auth } from "./firebase.js";
+      import {
+        collection,
+        addDoc,
+        getDocs,
+        doc,
+        deleteDoc,
+        updateDoc,
+        query,
+        orderBy,
+      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+      import { signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-window.apri=(id,data,arg)=>{
- currentId=id;
- document.getElementById("mdata").value=data;
- document.getElementById("margomento").value=arg;
- document.getElementById("modal").style.display="flex";
-}
+      let currentId = null;
 
-window.chiudi=()=>document.getElementById("modal").style.display="none";
+      window.logout = () => signOut(auth).then(() => (location.href = "login.html"));
 
-window.salvaModifica=async()=>{
- const data=document.getElementById("mdata").value;
- const argomento=document.getElementById("margomento").value;
- await updateDoc(doc(db,"lezioni",currentId),{data,argomento});
- chiudi(); carica();
-}
-</script></body></html>
+      window.aggiungi = async function () {
+        const data = document.getElementById("data").value;
+        const argomento = document.getElementById("argomento").value;
+        const ok = document.getElementById("ok");
+        ok.innerText = "";
+        try {
+          await addDoc(collection(db, "lezioni"), { data, argomento });
+          ok.innerText = "✅ Inserito!";
+          carica();
+        } catch (error) {
+          ok.innerText =
+            "❌ Errore nel salvataggio. Controlla permessi Firestore.";
+          console.error("Errore inserimento lezione:", error);
+        }
+      };
+
+      async function carica() {
+        const lista = document.getElementById("lista");
+        lista.innerHTML = "";
+        let snap;
+        try {
+          const q = query(collection(db, "lezioni"), orderBy("data", "desc"));
+          snap = await getDocs(q);
+        } catch (error) {
+          lista.innerHTML =
+            "<p class=\"small\">❌ Errore nel caricamento lezioni. Controlla i permessi Firestore.</p>";
+          console.error("Errore lettura lezioni:", error);
+          return;
+        }
+
+        snap.forEach((d) => {
+          const l = d.data();
+          lista.innerHTML += `
+            <article class="lesson">
+              <div>
+                <p class="lesson-date">${l.data}</p>
+                <p class="lesson-topic">${l.argomento}</p>
+              </div>
+              <div class="lesson-actions">
+                <button class="icon-button" onclick="apri('${d.id}','${l.data}','${l.argomento}')">
+                  ✏️
+                </button>
+                <button class="icon-button" onclick="cancella('${d.id}')">🗑</button>
+              </div>
+            </article>`;
+        });
+      }
+      carica();
+
+      window.cancella = async (id) => {
+        try {
+          await deleteDoc(doc(db, "lezioni", id));
+          carica();
+        } catch (error) {
+          document.getElementById("ok").innerText =
+            "❌ Errore nella cancellazione. Controlla permessi Firestore.";
+          console.error("Errore cancellazione lezione:", error);
+        }
+      };
+
+      window.apri = (id, data, arg) => {
+        currentId = id;
+        document.getElementById("mdata").value = data;
+        document.getElementById("margomento").value = arg;
+        document.getElementById("modal").style.display = "flex";
+      };
+
+      window.chiudi = () => (document.getElementById("modal").style.display = "none");
+
+      window.salvaModifica = async () => {
+        const data = document.getElementById("mdata").value;
+        const argomento = document.getElementById("margomento").value;
+        try {
+          await updateDoc(doc(db, "lezioni", currentId), { data, argomento });
+          chiudi();
+          carica();
+        } catch (error) {
+          document.getElementById("ok").innerText =
+            "❌ Errore nel salvataggio. Controlla permessi Firestore.";
+          console.error("Errore modifica lezione:", error);
+        }
+      };
+    </script>
+  </body>
+</html>
