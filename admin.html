@@ -99,6 +99,17 @@
       window.aggiungi = async function () {
         const data = document.getElementById("data").value;
         const argomento = document.getElementById("argomento").value;
+        const ok = document.getElementById("ok");
+        ok.innerText = "";
+        try {
+          await addDoc(collection(db, "lezioni"), { data, argomento });
+          ok.innerText = "✅ Inserito!";
+          carica();
+        } catch (error) {
+          ok.innerText =
+            "❌ Errore nel salvataggio. Controlla permessi Firestore.";
+          console.error("Errore inserimento lezione:", error);
+        }
         await addDoc(collection(db, "lezioni"), { data, argomento });
         document.getElementById("ok").innerText = "✅ Inserito!";
         carica();
@@ -107,6 +118,16 @@
       async function carica() {
         const lista = document.getElementById("lista");
         lista.innerHTML = "";
+        let snap;
+        try {
+          const q = query(collection(db, "lezioni"), orderBy("data", "desc"));
+          snap = await getDocs(q);
+        } catch (error) {
+          lista.innerHTML =
+            "<p class=\"small\">❌ Errore nel caricamento lezioni. Controlla i permessi Firestore.</p>";
+          console.error("Errore lettura lezioni:", error);
+          return;
+        }
         const q = query(collection(db, "lezioni"), orderBy("data", "desc"));
         const snap = await getDocs(q);
 
@@ -130,6 +151,14 @@
       carica();
 
       window.cancella = async (id) => {
+        try {
+          await deleteDoc(doc(db, "lezioni", id));
+          carica();
+        } catch (error) {
+          document.getElementById("ok").innerText =
+            "❌ Errore nella cancellazione. Controlla permessi Firestore.";
+          console.error("Errore cancellazione lezione:", error);
+        }
         await deleteDoc(doc(db, "lezioni", id));
         carica();
       };
@@ -146,6 +175,15 @@
       window.salvaModifica = async () => {
         const data = document.getElementById("mdata").value;
         const argomento = document.getElementById("margomento").value;
+        try {
+          await updateDoc(doc(db, "lezioni", currentId), { data, argomento });
+          chiudi();
+          carica();
+        } catch (error) {
+          document.getElementById("ok").innerText =
+            "❌ Errore nel salvataggio. Controlla permessi Firestore.";
+          console.error("Errore modifica lezione:", error);
+        }
         await updateDoc(doc(db, "lezioni", currentId), { data, argomento });
         chiudi();
         carica();

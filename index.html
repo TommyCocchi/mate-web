@@ -56,6 +56,7 @@
             <h2>Lezioni recenti</h2>
             <p class="section-subtitle">Ordinate dalla più nuova alla più vecchia.</p>
           </div>
+          <p id="status" class="small"></p>
         </div>
         <div id="lista" class="lesson-grid"></div>
       </section>
@@ -78,6 +79,21 @@
         const lista = document.getElementById("lista");
         const count = document.getElementById("lesson-count");
         const lastUpdate = document.getElementById("last-update");
+        const status = document.getElementById("status");
+        lista.innerHTML = "";
+        status.textContent = "";
+        let snap;
+        try {
+          const q = query(collection(db, "lezioni"), orderBy("data", "desc"));
+          snap = await getDocs(q);
+        } catch (error) {
+          status.textContent =
+            "Impossibile caricare le lezioni. Verifica i permessi Firestore.";
+          console.error("Errore lettura lezioni:", error);
+          count.textContent = "0";
+          lastUpdate.textContent = "In attesa";
+          return;
+        }
         lista.innerHTML = "";
         const q = query(collection(db, "lezioni"), orderBy("data", "desc"));
         const snap = await getDocs(q);
