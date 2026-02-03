@@ -3,9 +3,9 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "INSERISCI",
-  authDomain: "INSERISCI",
-  projectId: "INSERISCI",
+  apiKey: "AIzaSyB5xJ0-YnoQc-NsnWTuHomY43SSqq6rsvQ",
+  authDomain: "mate-2ae93.firebaseapp.com",
+  projectId: "mate-2ae93",
 };
 
 const app = initializeApp(firebaseConfig);
